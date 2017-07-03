@@ -1,0 +1,14 @@
+{
+  "name": "service-worker-background-fetch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "author": "Phil Nash <philnash@twilio.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3"
+  }
+}

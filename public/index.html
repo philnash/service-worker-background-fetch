@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Background Fetch</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      padding:20px;
+      margin:0;
+    }
+    header, main {
+      max-width: 700px;
+      margin:0 auto;
+    }
+    img {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Background fetch experiment</h1>
+  </header>
+  <main>
+    <p>
+      The image at the bottom of this page is served only after a delay of 10 seconds.
+    </p>
+    <p>
+      However, if you click on "Start download" the background fetch api will start to download the image and store it using the caches API. It will ask for permission to send notifications too. You can navigate away from this tab while that background fetch is completed. When the download completes, you will be notified by a push notification.
+    </p>
+    <p>
+      Once the background fetch API has stored the image in the cache, it will be served by the service worker, so it will load immediately. You can empty the cache and try again with the "Empty cache" button.
+    </p>
+    <p>
+      Make sure you are using Chrome Canary or have the experimental web platform features flag turned on in Chrome's chrome://flags settings.
+    </p>
+    <p><button id="download">Start download</button> <button id="empty-cache">Empty cache</button></p>
+    <img src="/images/twilio.png">
+  </main>
+  <script>
+
+    function askPermission() {
+      return new Promise(function(resolve, reject) {
+        const permissionResult = Notification.requestPermission(function(result) {
+          resolve(result);
+        });
+
+        if (permissionResult) {
+          permissionResult.then(resolve, reject);
+        }
+      })
+      .then(function(permissionResult) {
+        if (permissionResult !== 'granted') {
+          throw new Error('We weren\'t granted permission.');
+        }
+      });
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(reg) {
+        const button = document.getElementById('download');
+        if ('backgroundFetch' in reg) {
+          button.addEventListener('click', function(event) {
+            const f = reg.backgroundFetch.fetch('large-file', [new Request('/images/twilio.png')], {
+              title: 'Downloading large image'
+            }).then(function(backgroundFetch) { console.log(backgroundFetch) });
+            askPermission().then(() => { console.log('Permission granted'); });
+          })
+        }
+      })
+
+      const clearCache = document.getElementById('empty-cache');
+      clearCache.addEventListener('click', function(event) {
+        caches.delete('downloads').then(() => console.log('Cache deleted'));
+      })
+    }
+  </script>
+</body>
+</html>
