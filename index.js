@@ -16,6 +16,6 @@ app.get('/images/twilio.png', function(req, res) {
   }, 10000);
 });
 
-app.listen(3000, function() {
+app.listen(process.env.PORT || 3000, function() {
   console.log('Application started');
 });

@@ -10,7 +10,11 @@ self.addEventListener('backgroundfetched', function(event) {
   event.waitUntil(
     caches.open('downloads').then(function(cache) {
       event.updateUI('Large file downloaded');
-      registration.showNotification('File downloaded!');
+      registration.showNotification('File downloaded!', {
+        data: {
+          url: event.fetches[0].request.url
+        }
+      });
 
       const promises = event.fetches.map(({ request, response }) => {
         if (response && response.ok) {
@@ -25,18 +29,15 @@ self.addEventListener('backgroundfetched', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  clients.openWindow('http://localhost:3000/');
+  const url = new URL(event.notification.data.url);
+  clients.openWindow(url.origin);
 });
 
 self.addEventListener('fetch', function(event) {
-  console.log(event);
   if (event.request.url.match(/images/)) {
-    console.log('hello');
     event.respondWith(
       caches.open('downloads').then(cache => {
         return cache.match(event.request).then(response => {
-          console.log(response);
-          console.log(event.request);
           return response || fetch(event.request);
         });
       })

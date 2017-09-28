@@ -61,7 +61,7 @@
         const button = document.getElementById('download');
         if ('backgroundFetch' in reg) {
           button.addEventListener('click', function(event) {
-            const f = reg.backgroundFetch.fetch('large-file', [new Request('/images/twilio.png')], {
+            reg.backgroundFetch.fetch('large-file', [new Request('/images/twilio.png')], {
               title: 'Downloading large image'
             }).then(function(backgroundFetch) { console.log(backgroundFetch) });
             askPermission().then(() => { console.log('Permission granted'); });
